@@ -1,45 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mapa con Filtros Verticales</title>
+    <title>Mapa de Inmuebles</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.4/plyr.css" />
     <style>
-        #mapid { height: 80vh; }
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #mapid { height: 70vh; }
         #controls {
             padding: 10px;
             display: flex;
-            flex-direction: column;  /* Establece la dirección de los items en columna */
-            width: 200px; /* Define un ancho para el contenedor de controles */
+            flex-direction: column;
+            width: 100%;
+            background: white;
         }
-        #controls label, #controls input, #controls select, #controls button {
-            margin-bottom: 10px; /* Espacio entre controles */
+        #controls select, #controls input {
+            margin-bottom: 10px;
+        }
+        .control-label {
+            margin: 0 0 5px 0;
+            font-weight: bold;
+        }
+        .header-image {
+            width: 100%;  /* Ajusta la imagen al ancho del contenedor */
+            height: auto; /* Mantiene la proporción de la imagen */
+        }
+        .leaflet-popup-content {
+            width: 300px; /* Ancho del popup */
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <img src="" alt="Cabecera" class="header-image">
+    </div>
     <div id="controls">
-        <label for="info1-filter">Filtro Info 1:</label>
-        <select id="info1-filter">
-            <option value="">Todos</option>
-        </select>
-
-        <label for="info2-filter">Filtro Info 2:</label>
-        <select id="info2-filter">
-            <option value="">Todos</option>
-        </select>
-
-        <label for="min-number">Número mínimo:</label>
-        <input type="number" id="min-number" value="100" min="0" max="1000">
-
-        <label for="max-number">Número máximo:</label>
-        <input type="number" id="max-number" value="900" min="0" max="1000">
-
+        <div class="control-item">
+            <label for="price-min" class="control-label">Precio Mínimo:</label>
+            <input type="number" id="price-min" placeholder="Mínimo" value="0">
+        </div>
+        <div class="control-item">
+            <label for="price-max" class="control-label">Precio Máximo:</label>
+            <input type="number" id="price-max" placeholder="Máximo" value="10000">
+        </div>
+        <div class="control-item">
+            <label for="comercializador-filter" class="control-label">Comercializador:</label>
+            <select id="comercializador-filter">
+                <option value="">Todos</option>
+                <option value="Propietario">Propietario</option>
+                <option value="Century 21">Century 21</option>
+                <option value="Otra Inmobiliaria">Otra Inmobiliaria</option>
+            </select>
+        </div>
+        <div class="control-item">
+            <label for="tipo-filter" class="control-label">Tipo de Inmueble:</label>
+            <select id="tipo-filter">
+                <option value="">Todos</option>
+                <option value="Casa">Casa</option>
+                <option value="Apartamento">Apartamento</option>
+                <option value="Local comercial o oficina">Local comercial o oficina</option>
+                <option value="Terreno">Terreno</option>
+            </select>
+        </div>
         <button onclick="filterMarkers()">Aplicar Filtros</button>
         <button onclick="resetFilters()">Borrar Filtros</button>
     </div>
     <div id="mapid"></div>
+
+    <!-- Paso 1: Inicialización del mapa y adición de una capa base -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         var mymap = L.map('mapid').setView([-17.8, -63.2], 13);
@@ -47,13 +77,21 @@
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
         }).addTo(mymap);
+    </script>
 
+    <!-- Resto de los scripts -->
+    <script src="https://cdn.plyr.io/3.6.4/plyr.polyfilled.js"></script>
+    <script>
+        // Tu código JavaScript restante aquí
         var coordinates = [
-            {"lat": -17.767431, "lng": -63.1554859, "color": "red", "info": ["Info 1", "Detalle 1", 123]},
-            {"lat": -17.766631, "lng": -63.1562634, "color": "blue", "info": ["Info 2", "Detalle 2", 456]},
-            {"lat": -17.760534, "lng": -63.1570268, "color": "green", "info": ["Info 3", "Detalle 3", 789]},
-            {"lat": -17.762679, "lng": -63.1570570, "color": "orange", "info": ["Info 4", "Detalle 4", 250]},
-        ];
+      {"lat": -17.767431, "lng": -63.1554859, "color": "red", "info": ["Casa", "Propietario", 450], "price": 1200, "metrosConstruccion": 150, "metrosTerreno": 200, "video": "https://www.youtube.com/embed/u8sW-NhGfXw"},
+      {"lat": -17.766631, "lng": -63.1562634, "color": "blue", "info": ["Apartamento", "Century 21", 300], "price": 800, "metrosConstruccion": 100, "metrosTerreno": 0, "video": "https://www.youtube.com/embed/u8sW-NhGfXw"},
+      {"lat": -17.760534, "lng": -63.1570268, "color": "green", "info": ["Local comercial o oficina", "Otra Inmobiliaria", 650], "price": 1500, "metrosConstruccion": 200, "metrosTerreno": 150, "video": "https://www.youtube.com/embed/u8sW-NhGfXw"},
+      {"lat": -17.762679, "lng": -63.1570570, "color": "orange", "info": ["Terreno", "Propietario", 800], "price": 500, "metrosConstruccion": 0, "metrosTerreno": 500, "video": "https://www.youtube.com/embed/u8sW-NhGfXw"},
+  ];
+
+  // Código para crear los marcadores y los popups se mantiene igual.
+
 
         var markers = [];
 
@@ -66,21 +104,21 @@
                     popupAnchor: [0, -36],
                     html: `<span style="background-color: ${coord.color}; width: 10px; height: 10px; display: block; left: -5px; top: -5px; position: relative; border-radius: 5px;"></span>`
                 })
-            }).bindPopup(`<b>${coord.info[0]}</b><br>${coord.info[1]}<br>${coord.info[2]}`);
-            markers.push({marker: marker, info1: coord.info[0], info2: coord.info[1], number: coord.info[2]});
+            }).bindPopup(`<div class="video-wrapper"><iframe width="280" height="460" src="${coord.video}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen referrerpolicy="no-referrer"></iframe></div><b>${coord.info[0]}</b><br>Comercializado por: ${coord.info[1]}<br>Precio: ${coord.price}<br>Metros Construcción: ${coord.metrosConstruccion}<br>Metros Terreno: ${coord.metrosTerreno}`);
+            markers.push({marker: marker, tipo: coord.info[0], comercializador: coord.info[1], price: coord.price});
             marker.addTo(mymap);
         });
 
         function filterMarkers() {
-            var info1Filter = document.getElementById('info1-filter').value;
-            var info2Filter = document.getElementById('info2-filter').value;
-            var minNum = parseInt(document.getElementById('min-number').value);
-            var maxNum = parseInt(document.getElementById('max-number').value);
+            var priceMin = parseInt(document.getElementById('price-min').value);
+            var priceMax = parseInt(document.getElementById('price-max').value);
+            var comercializador = document.getElementById('comercializador-filter').value;
+            var tipo = document.getElementById('tipo-filter').value;
 
             markers.forEach(function(item) {
-                if ((info1Filter === "" || item.info1 === info1Filter) &&
-                    (info2Filter === "" || item.info2 === info2Filter) &&
-                    item.number >= minNum && item.number <= maxNum) {
+                if ((comercializador === "" || item.comercializador === comercializador) &&
+                    (tipo === "" || item.tipo === tipo) &&
+                    item.price >= priceMin && item.price <= priceMax) {
                     item.marker.addTo(mymap);
                 } else {
                     item.marker.remove();
@@ -89,10 +127,10 @@
         }
 
         function resetFilters() {
-            document.getElementById('info1-filter').selectedIndex = 0;
-            document.getElementById('info2-filter').selectedIndex = 0;
-            document.getElementById('min-number').value = 100;
-            document.getElementById('max-number').value = 900;
+            document.getElementById('price-min').value = 0;
+            document.getElementById('price-max').value = 10000;
+            document.getElementById('comercializador-filter').selectedIndex = 0;
+            document.getElementById('tipo-filter').selectedIndex = 0;
             markers.forEach(item => item.marker.addTo(mymap));
         }
     </script>
