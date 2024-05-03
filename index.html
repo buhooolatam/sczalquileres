@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mapa con Filtros Verticales</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #mapid { height: 80vh; }
+        #controls {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;  /* Establece la dirección de los items en columna */
+            width: 200px; /* Define un ancho para el contenedor de controles */
+        }
+        #controls label, #controls input, #controls select, #controls button {
+            margin-bottom: 10px; /* Espacio entre controles */
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="info1-filter">Filtro Info 1:</label>
+        <select id="info1-filter">
+            <option value="">Todos</option>
+        </select>
+
+        <label for="info2-filter">Filtro Info 2:</label>
+        <select id="info2-filter">
+            <option value="">Todos</option>
+        </select>
+
+        <label for="min-number">Número mínimo:</label>
+        <input type="number" id="min-number" value="100" min="0" max="1000">
+
+        <label for="max-number">Número máximo:</label>
+        <input type="number" id="max-number" value="900" min="0" max="1000">
+
+        <button onclick="filterMarkers()">Aplicar Filtros</button>
+        <button onclick="resetFilters()">Borrar Filtros</button>
+    </div>
+    <div id="mapid"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var mymap = L.map('mapid').setView([-17.8, -63.2], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mymap);
+
+        var coordinates = [
+            {"lat": -17.767431, "lng": -63.1554859, "color": "red", "info": ["Info 1", "Detalle 1", 123]},
+            {"lat": -17.766631, "lng": -63.1562634, "color": "blue", "info": ["Info 2", "Detalle 2", 456]},
+            {"lat": -17.760534, "lng": -63.1570268, "color": "green", "info": ["Info 3", "Detalle 3", 789]},
+            {"lat": -17.762679, "lng": -63.1570570, "color": "orange", "info": ["Info 4", "Detalle 4", 250]},
+        ];
+
+        var markers = [];
+
+        coordinates.forEach(function(coord) {
+            var marker = L.marker([coord.lat, coord.lng], {
+                icon: L.divIcon({
+                    className: 'my-custom-pin',
+                    iconAnchor: [0, 24],
+                    labelAnchor: [-6, 0],
+                    popupAnchor: [0, -36],
+                    html: `<span style="background-color: ${coord.color}; width: 10px; height: 10px; display: block; left: -5px; top: -5px; position: relative; border-radius: 5px;"></span>`
+                })
+            }).bindPopup(`<b>${coord.info[0]}</b><br>${coord.info[1]}<br>${coord.info[2]}`);
+            markers.push({marker: marker, info1: coord.info[0], info2: coord.info[1], number: coord.info[2]});
+            marker.addTo(mymap);
+        });
+
+        function filterMarkers() {
+            var info1Filter = document.getElementById('info1-filter').value;
+            var info2Filter = document.getElementById('info2-filter').value;
+            var minNum = parseInt(document.getElementById('min-number').value);
+            var maxNum = parseInt(document.getElementById('max-number').value);
+
+            markers.forEach(function(item) {
+                if ((info1Filter === "" || item.info1 === info1Filter) &&
+                    (info2Filter === "" || item.info2 === info2Filter) &&
+                    item.number >= minNum && item.number <= maxNum) {
+                    item.marker.addTo(mymap);
+                } else {
+                    item.marker.remove();
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.getElementById('info1-filter').selectedIndex = 0;
+            document.getElementById('info2-filter').selectedIndex = 0;
+            document.getElementById('min-number').value = 100;
+            document.getElementById('max-number').value = 900;
+            markers.forEach(item => item.marker.addTo(mymap));
+        }
+    </script>
+</body>
+</html>
